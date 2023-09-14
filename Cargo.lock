@@ -332,11 +332,14 @@ name = "bulletin"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bytes",
  "chrono",
  "ctrlc",
+ "ed25519-dalek",
  "futures",
  "iroh",
  "quic-rpc",
+ "rand",
  "tokio",
 ]
 

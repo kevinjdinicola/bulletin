@@ -6,10 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+iroh = { git = "https://github.com/n0-computer/iroh.git", ref = "v0.6.0-alpha.1" }
 anyhow = "1.0.75"
 chrono = "0.4.30"
 ctrlc = "3.4.1"
 futures = "0.3.28"
-iroh = { git = "https://github.com/n0-computer/iroh.git", ref = "v0.6.0-alpha.1" }
 quic-rpc = "0.6.1"
 tokio = { version = "1.0.0", features = ["rt", "rt-multi-thread", "macros"] }
+rand = "0.8.5"
+ed25519-dalek = "2.0.0"
+bytes = "1.5.0"

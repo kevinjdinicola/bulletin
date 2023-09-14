@@ -1,18 +1,22 @@
 mod iroh_node;
 
 use anyhow::Result;
-use std::io::Read;
+use std::io::{Read};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use chrono::{DateTime, Utc};
 use iroh::bytes::Hash;
-use iroh::sync::AuthorId;
+use iroh::sync::{Author, AuthorId, Namespace};
 use tokio::sync::Notify;
 use ctrlc;
-use iroh::rpc_protocol::ShareMode;
+use iroh::rpc_protocol::{AuthorImportRequest, ShareMode};
 use crate::iroh_node::Iroh;
 use futures::{Stream, StreamExt};
 use iroh::sync_engine::LiveEvent;
+use ed25519_dalek::{Signature, SignatureError, Signer, SigningKey, VerifyingKey};
+use iroh::bytes::baomap::Store as BlobStore;
+use iroh::sync::store::Store as DocStore;
+use bytes::Bytes;
 
 
 struct BulletinPost {
@@ -59,6 +63,30 @@ async fn run(shutdown_notify: Arc<Notify>) -> Result<()> {
     println!("Hello, world!");
     let node = start_node().await;
     let client = node.client();
+    let docstore = node.docstore().unwrap();
+    let blobstore = node.blobstore().unwrap();
+    let value = "Hello world";
+    let myhash = blobstore.import_bytes(Bytes::from(value)).await?;
+    let a = Author::new(&mut rand::rngs::OsRng {});
+    docstore.import_author(a.clone())?;
+    println!("I just added a blob, its hash was {}",myhash);
+
+
+    println!("made a key {:?}", a.public_key().as_bytes());
+
+
+    let mut existing_authors = client.list_authors().await?;
+    while let Some(foo) = existing_authors.next().await {
+        println!("Found author with id {:?}", foo?.as_bytes());
+    }
+
+    let doc = docstore.new_replica(Namespace::new(&mut rand::rngs::OsRng {}))?;
+    doc.insert("msg", &a, myhash.clone(), value.len() as u64);
+
+
+
+
+
 
     let a = client.create_author().await?;
 
